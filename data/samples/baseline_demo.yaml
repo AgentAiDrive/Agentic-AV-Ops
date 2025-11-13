@@ -1,0 +1,17 @@
+
+platform: Zoom
+subscription: Pro
+pricing_usd_per_license: 14.99
+footprint:
+  rooms: 500
+  endpoints: 1000
+  users: 7500
+usage:
+  meetings_per_month: 12000
+  avg_participants: 6.2
+incidents_per_month: 150
+minutes_per_incident: 10
+cost_per_hour_usd: 85
+cost_per_minute: 1.4167
+target_on_time_percent: 95
+notes: Demo baseline values for dashboards; replace with real capture.
