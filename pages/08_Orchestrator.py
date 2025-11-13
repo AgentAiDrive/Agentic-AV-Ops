@@ -120,7 +120,7 @@ with st.sidebar:
     if st.button("Load Example"):
         if ex != "(none)":
             reset(example_orchestration(ex))
-            st.experimental_rerun()
+            st.rerun()
 
     st.markdown("---")
     st.subheader("Saved Orchestrations")
@@ -134,7 +134,7 @@ with st.sidebar:
             if data:
                 reset(data)
                 st.success("Loaded from DB.")
-                st.experimental_rerun()
+                st.rerun()
     else:
         st.caption("No saved orchestrations yet.")
 
@@ -197,15 +197,15 @@ for i, step in enumerate(st.session_state.orch["steps"]):
         with cc[1]:
             if st.button("Delete", key=f"del{i}"):
                 st.session_state.orch["steps"].pop(i)
-                st.experimental_rerun()
+                st.rerun()
         with cc[2]:
             if st.button("↑ Move Up", key=f"up{i}") and i>0:
                 st.session_state.orch["steps"][i-1], st.session_state.orch["steps"][i] = st.session_state.orch["steps"][i], st.session_state.orch["steps"][i-1]
-                st.experimental_rerun()
+                st.rerun()
         with cc[3]:
             if st.button("↓ Move Down", key=f"down{i}") and i < len(st.session_state.orch["steps"])-1:
                 st.session_state.orch["steps"][i+1], st.session_state.orch["steps"][i] = st.session_state.orch["steps"][i], st.session_state.orch["steps"][i+1]
-                st.experimental_rerun()
+                st.rerun()
 
 st.markdown("---")
 run_cols = st.columns([1,1,2])
