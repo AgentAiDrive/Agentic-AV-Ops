@@ -5,9 +5,9 @@ import streamlit as st
 from core.ipav_shared import save_shortcut
 
 st.set_page_config(page_title="Generate Shortcut from SOP", page_icon="⚡")
-st.title("⚡ Generate Shortcut from SOP (Small Flows)")
+st.title("⚡ Generate a Agent Workflow Shortcut from a SOP")
 
-st.markdown("Paste an SOP and produce a reusable Shortcut object and an optional Recipe YAML.")
+st.markdown("Paste a SOP and produce a reusable Shortcut object and an optional Recipe YAML.")
 
 col1, col2 = st.columns(2)
 with col1:
