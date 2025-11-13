@@ -9,6 +9,72 @@ st.set_page_config(page_title="🧩 Orchestrator", page_icon="🧩")
 st.title("🧩 Orchestrator — Multi-Agent / Multi-Recipe")
 st.caption("Compose multi-step workflows across agents & recipes. Import/export, test steps, and run end-to-end.")
 
+
+def example_orchestration(name: str) -> Dict[str,Any]:
+    if name.startswith("ServiceNow Connector"):
+        return {
+            "name": "ServiceNow Connector + Test",
+            "globals": {},
+            "steps": [
+                {"label":"Create Connector","agent":"ActAgent","recipe":"sn_connector","mode":"tool",
+                 "tool":"mcp_create_servicenow",
+                 "params":{"base_url":"https://YOUR_INSTANCE.service-now.com","user":"YOUR_USER","password":"YOUR_PASSWORD","token":""}},
+                {"label":"Health Check","agent":"VerifyAgent","recipe":"sn_health","mode":"tool",
+                 "tool":"mcp_test_servicenow","params":{}},
+                {"label":"Confirm","agent":"VerifyAgent","recipe":"confirm","mode":"llm",
+                 "system":"You confirm ServiceNow connectivity.","developer":"Be concise.",
+                 "user":"Connector status: {last}","model":""}
+            ]
+        }
+    if name.startswith("SOP"):
+        return {
+            "name": "SOP → KB Article (mock or real via secrets)",
+            "globals": {"model_default": ""},
+            "steps": [
+                {"label":"Intake SOP","agent":"IntakeAgent","recipe":"intake_sop","mode":"llm",
+                 "system":"You are an Intake Agent. Normalize the SOP content.",
+                 "developer":"Return a clean, concise outline of the SOP steps.",
+                 "user":"{globals[sop_text] if globals and 'sop_text' in globals else 'Paste SOP here.'}","model":""},
+                {"label":"Convert to KB","agent":"PlanAgent","recipe":"kb_convert","mode":"llm",
+                 "system":"You convert SOPs into KB articles for ServiceNow.","developer":"Use clear headings and concise language.",
+                 "user":"Using the normalized SOP above, draft a KB article body.","model":""},
+                {"label":"Publish to ServiceNow","agent":"ActAgent","recipe":"kb_publish","mode":"tool",
+                 "tool":"servicenow_publish_kb",
+                 "params":{"simulate": True, "title":"KB from SOP", "body":"{last[response] if last and 'response' in last else 'KB body'}"}},
+                {"label":"Verify & PDF","agent":"VerifyAgent","recipe":"artifact_capture","mode":"llm",
+                 "system":"You verify publishing and summarize results.","developer":"Mention the article URL and attached PDF path if available.",
+                 "user":"Summarize the publish result: {last}","model":""}
+            ]
+        }
+    if name.startswith("MCP Create"):
+        return {
+            "name": "MCP Create + Test Message",
+            "globals": {},
+            "steps": [
+                {"label":"Create MCP (mock)","agent":"ActAgent","recipe":"mcp_create","mode":"tool",
+                 "tool":"mcp_create_and_test","params":{"simulate": True, "name":"slack","channel":"#av-ops","message":"Hello from Orchestrator (demo)."}},
+                {"label":"Confirm","agent":"VerifyAgent","recipe":"confirm","mode":"llm",
+                 "system":"You confirm connector setup.","developer":"","user":"Confirm we created the connector and sent a test: {last}","model":""}
+            ]
+        }
+    return {
+        "name": "Baseline YAML → Dashboard metrics",
+        "globals": {"baseline_yaml_path": "data/samples/baseline_demo.yaml"},
+        "steps": [
+            {"label":"Load Baseline (info)","agent":"IntakeAgent","recipe":"load_baseline","mode":"llm",
+             "system":"You are analyzing baseline metrics.","developer":"Summarize key fields found.",
+             "user":"We will load a baseline YAML from {globals[baseline_yaml_path]} then compute metrics.","model":""},
+            {"label":"Compute Metrics","agent":"PlanAgent","recipe":"baseline_compute","mode":"tool",
+             "tool":"baseline_dashboard",
+             "params":{"baseline": {"incidents_per_month": 150, "minutes_per_incident": 10, "cost_per_minute": 1.4167,
+                                    "meetings_per_month": 12000, "avg_participants": 6.2}}},
+            {"label":"Render Summary","agent":"VerifyAgent","recipe":"render","mode":"llm",
+             "system":"You render a succinct dashboard summary.","developer":"Create a table of key metrics.",
+             "user":"Use these metrics: {last}","model":""}
+        ]
+    }
+
+
 if "orch" not in st.session_state:
     st.session_state.orch = {"name": "Untitled Orchestration", "globals": {}, "steps": []}
 
@@ -46,6 +112,8 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("Examples")
     ex = st.selectbox("Load example", ["(none)",
+                                       "ServiceNow Connector + Test",
+                                       "ServiceNow Connector + Test",
                                        "SOP → KB Article (ServiceNow mock)",
                                        "MCP Create + Test Message",
                                        "Baseline YAML → Dashboard metrics"])
@@ -155,6 +223,23 @@ with run_cols[1]:
         st.success(f"Saved (id: {oid[:8]}…)")
 
 def example_orchestration(name: str) -> Dict[str,Any]:
+
+    if name.startswith("ServiceNow Connector"):
+        return {
+            "name": "ServiceNow Connector + Test",
+            "globals": {},
+            "steps": [
+                {"label":"Create Connector","agent":"ActAgent","recipe":"sn_connector","mode":"tool",
+                 "tool":"mcp_create_servicenow",
+                 "params":{"base_url":"https://YOUR_INSTANCE.service-now.com","user":"YOUR_USER","password":"YOUR_PASSWORD","token":""}},
+                {"label":"Health Check","agent":"VerifyAgent","recipe":"sn_health","mode":"tool",
+                 "tool":"mcp_test_servicenow","params":{}},
+                {"label":"Confirm","agent":"VerifyAgent","recipe":"confirm","mode":"llm",
+                 "system":"You confirm ServiceNow connectivity.","developer":"Be concise.",
+                 "user":"Connector status: {last}","model":""}
+            ]
+        }
+
     if name.startswith("SOP"):
         return {
             "name": "SOP → KB Article (mock)",
