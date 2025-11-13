@@ -38,4 +38,4 @@ if user_input:
 with st.sidebar:
     if st.button("Reset conversation"):
         st.session_state.chat_history = []
-        st.experimental_rerun()
+        st.rerun()
