@@ -26,8 +26,8 @@ Once you save a persona, you can reuse it in:
 
 ### Recipe
 A **recipe** is a multi-step playbook.  
-Example: `collect data → analyze → summarize → draft email`.
-Recipes define **what steps happen and in what order**.
+Example: data → analyze → summarize → draft email.
+- Recipes define **what steps happen and in what order
 ---
 
 ### Workflow
